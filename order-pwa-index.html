@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Order">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1816">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Store Order</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1816; font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif; }
+
+  #splash {
+    position: fixed; inset: 0; z-index: 100;
+    background: #1a1816;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 16px;
+    transition: opacity .4s ease;
+  }
+  #splash.hide { opacity: 0; pointer-events: none; }
+
+  .splash-icon {
+    width: 80px; height: 80px;
+    background: #15803d; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+    animation: pop .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes pop { from { transform:scale(.6); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+  .splash-name { color: #fff; font-size: 22px; font-weight: 600; letter-spacing: .04em; animation: fadeUp .5s .15s both; }
+  .splash-sub  { color: rgba(255,255,255,.35); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; animation: fadeUp .5s .25s both; }
+  .splash-loader { margin-top: 8px; width: 32px; height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; animation: fadeUp .5s .3s both; }
+  .splash-loader-bar { height: 100%; width: 0%; background: #15803d; border-radius: 2px; animation: load 1.2s .4s ease forwards; }
+  @keyframes load    { from { width:0%; } to { width:100%; } }
+  @keyframes fadeUp  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  #app-container { position: fixed; inset: 0; display: flex; flex-direction: column; background: #1a1816; }
+  #status-bar    { background: #1a1816; height: env(safe-area-inset-top, 0px); flex-shrink: 0; }
+  #app-frame     { flex: 1; border: none; width: 100%; background: #f4f3ef; display: block; }
+  #home-bar      { background: #1a1816; height: env(safe-area-inset-bottom, 0px); flex-shrink: 0; }
+
+  #error-msg {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: #1a1816; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    color: rgba(255,255,255,.6); font-size: 14px; text-align: center; padding: 32px;
+  }
+  #error-msg.show { display: flex; }
+  #retry-btn { margin-top: 8px; padding: 12px 28px; background: #15803d; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-icon">🛒</div>
+  <div class="splash-name">Store Order</div>
+  <div class="splash-sub">Namaste 2026</div>
+  <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+</div>
+
+<div id="app-container">
+  <div id="status-bar"></div>
+  <iframe
+    id="app-frame"
+    src="https://script.google.com/macros/s/AKfycbwH1PXvoCy6IeX-7YgMEiEyi-WRrlYzzeQ_yInIy6zjJUaY5hqPKApPrAkDP-l2h8ZG/exec"
+    allow="camera; microphone"
+    loading="eager"
+  ></iframe>
+  <div id="home-bar"></div>
+</div>
+
+<div id="error-msg">
+  <div style="font-size:40px;">📡</div>
+  <div>Connection failed</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.35);">Please check your internet connection</div>
+  <button id="retry-btn" onclick="reload()">Retry</button>
+</div>
+
+<script>
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(() => document.getElementById('splash').remove(), 500);
+  }, 1600);
+
+  let loaded = false;
+  document.getElementById('app-frame').onload = () => { loaded = true; };
+  setTimeout(() => {
+    if (!loaded) document.getElementById('error-msg').classList.add('show');
+  }, 12000);
+
+  function reload() {
+    document.getElementById('error-msg').classList.remove('show');
+    const f = document.getElementById('app-frame');
+    f.src = f.src;
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
